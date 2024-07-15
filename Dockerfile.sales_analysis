@@ -1,0 +1,23 @@
+# Use the official Node.js image as a base
+FROM node:14
+
+# Create and set the working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies, including build tools for native modules
+RUN apt-get update && apt-get install -y python3 build-essential && npm install sqlite3 --build-from-source
+
+# Clean npm cache
+RUN npm cache clean --force
+
+# Install other dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Command to initialize the database and run the analysis
+CMD ["sh", "-c", "node db.js && node analysis.js"]

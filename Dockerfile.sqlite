@@ -1,0 +1,8 @@
+# Use a lightweight base image
+FROM alpine:3.12
+
+RUN apk add --no-cache sqlite
+
+VOLUME /data
+
+CMD ["sh", "-c", "while true; do sleep 3600; done"]

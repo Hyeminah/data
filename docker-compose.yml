@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  sales_analysis_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.sales_analysis
+    depends_on:
+      - sqlite_service
+    volumes:
+      - .:/usr/src/app
+    command: sh -c "node db.js && node analysis.js"
+
+  sqlite_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.sqlite
+    volumes:
+      - sqlite_data:/data
+
+volumes:
+  sqlite_data:
