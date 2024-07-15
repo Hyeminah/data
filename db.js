@@ -7,7 +7,6 @@ function initializeDatabase() {
     return db;
 }
 
-
 function createTables(db) {
     db.run(`CREATE TABLE IF NOT EXISTS Magasin (
         ID_Magasin INTEGER PRIMARY KEY,
@@ -32,7 +31,6 @@ function createTables(db) {
     )`);
 }
 
-
 function insertData(db, table, data) {
     const placeholders = data.map(() => '(?)').join(',');
     const sql = `INSERT OR IGNORE INTO ${table} VALUES ${placeholders}`;
@@ -42,7 +40,6 @@ function insertData(db, table, data) {
         }
     });
 }
-
 
 function readCSVAndInsert(db, table, columns) {
     const filePath = `./data/${table}.csv`;
@@ -61,14 +58,11 @@ function readCSVAndInsert(db, table, columns) {
         });
 }
 
-
 function main() {
     const db = initializeDatabase();
 
-    
     createTables(db);
 
-   
     const tables = ['magasins', 'produits', 'ventes'];
     const columns = {
         magasins: ['ID_Magasin', 'Ville', 'Nombre_de_salaries'],
@@ -80,8 +74,11 @@ function main() {
         readCSVAndInsert(db, table, columns[table]);
     });
 
-    
-    db.get(`SELECT SUM(Quantite * Prix) AS TotalTurnover FROM ventes INNER JOIN produits ON ventes.ID_Reference_produit = produits.ID_Reference_produit`, (err, row) => {
+    db.get(`
+        SELECT SUM(Quantite * Prix) AS TotalTurnover 
+        FROM ventes 
+        INNER JOIN produits ON ventes.ID_Reference_produit = produits.ID_Reference_produit
+    `, (err, row) => {
         if (err) {
             console.error('Error getting total turnover:', err.message);
         } else {
@@ -89,7 +86,12 @@ function main() {
         }
     });
 
-    db.all(`SELECT Nom, SUM(Quantite) AS TotalSales FROM produits INNER JOIN ventes ON produits.ID_Reference_produit = ventes.ID_Reference_produit GROUP BY Nom`, (err, rows) => {
+    db.all(`
+        SELECT Nom, SUM(Quantite) AS TotalSales 
+        FROM produits 
+        INNER JOIN ventes ON produits.ID_Reference_produit = ventes.ID_Reference_produit 
+        GROUP BY Nom
+    `, (err, rows) => {
         if (err) {
             console.error('Error getting sales by product:', err.message);
         } else {
@@ -100,7 +102,13 @@ function main() {
         }
     });
 
-    db.all(`SELECT Ville, SUM(Quantite * Prix) AS TotalSales FROM magasins INNER JOIN ventes ON magasins.ID_Magasin = ventes.ID_Magasin INNER JOIN produits ON ventes.ID_Reference_produit = produits.ID_Reference_produit GROUP BY Ville`, (err, rows) => {
+    db.all(`
+        SELECT Ville, SUM(Quantite * Prix) AS TotalSales 
+        FROM magasins 
+        INNER JOIN ventes ON magasins.ID_Magasin = ventes.ID_Magasin 
+        INNER JOIN produits ON ventes.ID_Reference_produit = produits.ID_Reference_produit 
+        GROUP BY Ville
+    `, (err, rows) => {
         if (err) {
             console.error('Error getting sales by region:', err.message);
         } else {
@@ -111,9 +119,7 @@ function main() {
         }
     });
 
-    
     db.close();
 }
-
 
 main();
